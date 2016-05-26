@@ -10,6 +10,14 @@
 # In[3]:
 
 import sys
+import re
+from zipfile import ZipFile
+import json
+import numpy as np
+from gensim.models import Word2Vec
+import multiprocessing
+from copy import deepcopy
+import pandas as pd # for quick summing within doc
 
 if len(sys.argv) < 3:
     exit("format: python deepir.py trainset_label testset_label")
@@ -17,7 +25,6 @@ if len(sys.argv) < 3:
 trainset_label = sys.argv[1]
 testset_label = sys.argv[2]
 
-import re
 contractions = re.compile(r"'|-|\"")
 # all non alphanumeric
 symbols = re.compile(r'(\W+)', re.U)
@@ -46,22 +53,18 @@ def sentences(l):
 
 # In[6]:
 
-from zipfile import ZipFile
-import json
-
 def YelpReviews(label):
     with ZipFile("yelp_%s_set.zip"%label, 'r') as zf:
         with zf.open("yelp_%s_set/yelp_%s_set_review.json"%(label,label)) as f:
             for line in f:
-                rev = json.loads(line)
+                rev = json.loads(line.decode())
                 yield {'y':rev['stars'],'x':[clean(s).split() for s in sentences(rev['text'])]}
-
 
 # For example:
 
 # In[9]:
 
-YelpReviews(testset_label).next()
+#YelpReviews(testset_label).next()
 
 
 # Now, since the files are small we'll just read everything into in-memory lists.  It takes a minute ...
@@ -69,10 +72,9 @@ YelpReviews(testset_label).next()
 # In[10]:
 
 revtrain = list(YelpReviews(trainset_label))
-print len(revtrain), "training reviews"
+print(len(revtrain), "training reviews")
 
 ## and shuffle just in case they are ordered
-import numpy as np
 np.random.shuffle(revtrain)
 
 
@@ -93,8 +95,6 @@ def StarSentences(reviews, stars=[1,2,3,4,5]):
 
 # In[12]:
 
-from gensim.models import Word2Vec
-import multiprocessing
 
 ## create a w2v learner 
 basemodel = Word2Vec(
@@ -102,7 +102,7 @@ basemodel = Word2Vec(
     iter=3, # iter = sweeps of SGD through the data; more is better
     hs=1, negative=0 # we only have scoring for the hierarchical softmax setup
     )
-print basemodel
+print(basemodel)
 
 
 # Build vocab from all sentences (you could also pre-train the base model from a neutral or un-labeled vocabulary)
@@ -116,11 +116,10 @@ basemodel.build_vocab(StarSentences(revtrain))
 
 # In[14]:
 
-from copy import deepcopy
 starmodels = [deepcopy(basemodel) for i in range(5)]
 for i in range(5):
     slist = list(StarSentences(revtrain, [i+1]))
-    print i+1, "stars (", len(slist), ")"
+    print(i+1, "stars (", len(slist), ")")
     starmodels[i].train(  slist, total_examples=len(slist) )
     
 
@@ -141,7 +140,6 @@ docprob takes two lists
 it returns the array of class probabilities.  Everything is done in-memory.
 """
 
-import pandas as pd # for quick summing within doc
 
 def docprob(docs, mods):
     # score() takes a list [s] of sentences here; could also be a sentence generator
@@ -172,7 +170,6 @@ revtest = list(YelpReviews(testset_label))
 
 ### get the probs (note we give docprob a list of lists of words, plus the models)
 probs = docprob( [r['x'] for r in revtest], starmodels )
-
 ##
 ##
 ### In[13]:
@@ -211,5 +208,5 @@ for i in range(len(true_stars)):
     if true_stars[i] == predicted_stars[i]:
         num_predicted_correctly += 1
         
-print "accuracy: ",1.0*num_predicted_correctly/len(probs)
+print("accuracy: ",1.0*num_predicted_correctly/len(probs))
 

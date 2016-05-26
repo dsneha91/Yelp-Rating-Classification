@@ -1,0 +1,34 @@
+-bash-4.1$ time python3 deepir.py training test
+Using gpu device 0: Tesla K20c (CNMeM is disabled, cuDNN not available)
+229907 training reviews
+Word2Vec(vocab=0, size=100, alpha=0.025)
+1 stars ( 246207 )
+2 stars ( 295371 )
+3 stars ( 437718 )
+4 stars ( 883235 )
+5 stars ( 799704 )
+accuracy:  0.10367659871057676
+
+real	5m40.592s
+user	16m29.310s
+sys	0m8.659s
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+-bash-4.1$ time python3 deepir.py training1 test1
+Using gpu device 0: Tesla K20c (CNMeM is disabled, cuDNN not available)
+1112607 training reviews
+Word2Vec(vocab=0, size=100, alpha=0.025)
+1 stars ( 1669565 )
+2 stars ( 1212355 )
+3 stars ( 1621244 )
+4 stars ( 3049445 )
+5 stars ( 4047604 )
+accuracy:  0.11739106206509761
+
+real	36m44.724s
+user	99m1.937s
+sys	2m6.547s
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+

@@ -1,0 +1,6 @@
+yelp_test_set.zip, yelp_training_set.zip
+Kaggle data - These are about 10% subsets of the total data
+
+yelp_test1_set.zip, yelp_training1_set.zip
+Yelp academic dataset - The entire data set of 2.2M reviews
+Here, training1 contains 50% of the dataset, and test1 25%. 25% has been held out for validation.
